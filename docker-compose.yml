@@ -1,0 +1,60 @@
+version: '3.5'
+services:
+# docker-compose up -d --build
+# terminal in open docker 
+# cd /data/postgres
+# echo "host all all all $POSTGRES_HOST_AUTH_METHOD" >> pg_hba.conf
+#pgadmine girilecek hostname adi localhost degil -> postgres_container olacak
+
+  postgres:
+    container_name: postgres_container
+    image: postgres:14.1
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+      PGDATA: /data/postgres
+
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    restart: unless-stopped
+  
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - backend
+    restart: unless-stopped
+
+  # Redis Service   
+
+  adminer:
+    image: "adminer:alpine" # Use a public \adminer image to build the redis service    
+    restart: unless-stopped
+    container_name: adminer
+    networks:
+      - backend    
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+    postgres:
+    pgadmin:
+    golang:

@@ -1,0 +1,56 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/gocarina/gocsv"
+)
+
+// CSV verilerini temsil eden struct
+type Person struct {
+	Name     string `csv:"name"`
+	Lastname string `csv:"lastname"`
+	Zipcode  string `csv:"zipcode"`
+	ID       int    `csv:"id"`
+}
+
+func main1() {
+	// CSV dosyasını aç
+	file, err := os.Open("sample-input.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	var allPeople []Person
+	if err := gocsv.UnmarshalFile(file, &allPeople); err != nil {
+		log.Fatal(err)
+	}
+	// Boş veya eksik satırları filtrele (örneğin ID < 0 veya Name boş)
+	/*
+	var validPeople []Person
+	for _, p := range allPeople {
+		if strings.TrimSpace(p.Name) != "" {
+			validPeople = append(validPeople, p)
+		}
+	}
+
+	fmt.Printf("Valid kişi sayısı: %d\n", len(validPeople))
+	for _, p := range validPeople {
+		fmt.Println(p)
+	}
+*/
+	
+	   // Verileri yazdır
+
+	   	for _, person := range allPeople {
+	   	
+
+
+	   		fmt.Printf("ID: %d, Name: %s ,  Lastname: %s, Zip: %s s\n",
+	   			person.ID, person.Name, person.Lastname,person.Zipcode)
+	   	}
+	
+}
