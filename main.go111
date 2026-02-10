@@ -1,0 +1,203 @@
+package main
+
+import (
+	"fmt"
+	"strings"
+	// "strings"
+)
+
+///https://www.perplexity.ai/search/elimde-5-satir-5-sutun-bir-exc-rlBCNCSkR7OrixqjZ6PyFQ
+
+//bu kisimda ai kullandim ilk once resursive dongu ile cozecegimi dusundum ama deneme yapinca sacma geldii ve performans sorunlari , sonsuz dongu bla bla
+//once bunlari excel hucreleri gibi hayal ettim ve bazi excel hucrelerinin alt satira  kayacagini varsaydim , perpilexty ai a asagidaki promput u yazdim ve kodu
+// olusturdu
+/*
+I have an Excel cell with 5 rows and 5 columns, but I need to have 5 different data points in the third row. However,
+two of them are in the third row, and the other two are in the fourth row. What mathematical method can I use to solve problems like this?
+*/
+func NormalizeGrid(grid [][]string, cols int) [][]string {
+	// 1) Flatten + boşları at
+	flat := make([]string, 0, len(grid)*cols)
+	for _, row := range grid {
+		for _, cell := range row {
+
+			if strings.TrimSpace(cell) != "" {
+				if cell != "" {
+					flat = append(flat, cell)
+				}
+			}
+
+		}
+	}
+
+	// 2) cols'luk satırlara böl (wrap)
+	outRows := (len(flat) + cols - 1) / cols
+	out := make([][]string, 0, outRows)l,
+
+	for i := 0; i < len(flat); i += cols {
+		end := i + cols
+		if end > len(flat) {
+			end = len(flat)
+		}
+		r := make([]string, cols)
+		copy(r, flat[i:end]) // kalan hücreler boş kalır
+		out = append(out, r)
+	}
+	return out
+}
+
+func main() {
+	grid := [][]string{
+		{"A", "B", "C", "D", "E"},
+		{"F", "G", "", "", ""},       // burada boşlar var
+		{"H", "I", "    ", "  ", ""}, // veri alt satıra kaymış gibi
+		{"J", "", "", "", ""},
+		{"K", "L", "M", "N", "O"},
+	}
+
+	fixed := NormalizeGrid(grid, 5)
+	for _, r := range fixed {
+		fmt.Println(r)
+	}
+}
+func CvsCheck() {
+	file, err := os.Open("data.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	reader := csv.NewReader(file)
+	reader.FieldsPerRecord = -1 // Değişken kolon sayısına izin ver (lax mode) [web:23]
+
+	// Header oku
+	header, err := reader.Read()
+	if err != nil {
+		log.Fatal("Header okunamadı:", err)
+	}
+	expectedCols := len(header)
+	fmt.Printf("Header kolon sayısı: %d (ilk satır: %v)\n", expectedCols, header)
+
+	lineNum := 1
+	for {
+		record, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("Satır %d okuma hatası: %v", lineNum+1, err)
+			continue
+		}
+		lineNum++
+
+		record = cleanMeptySlice(record)
+
+		colCount := len(record)
+
+		isEmpty := true
+		for _, cell := range record {
+			if strings.TrimSpace(cell) != "" {
+				isEmpty = false
+				break
+			}
+		}
+
+		if colCount != expectedCols {
+			fmt.Printf("Satır %d: Eksik kolon! Beklenen %d, var %d: %v\n", lineNum, expectedCols, colCount, record)
+		} else if isEmpty {
+			fmt.Printf("Satır %d: Boş satır: %v\n", lineNum, record)
+		} else {
+			fmt.Printf("Satır %d: Tamam (%d kolon): %v\n", lineNum, colCount, record)
+			// İşle: struct'e map et vs.
+		}
+	}
+	fmt.Println("Kontrol tamamlandı.")
+}
+func csvTOjson(persons *[]Person, recordData [][]string) {
+	fmt.Println("recordData")
+	fmt.Println(recordData)
+	// fmt.Println("------persons-----")
+	// var newData []Person
+
+	emptyColsCheck := len(recordData)
+	fmt.Println(emptyColsCheck)
+	// var row int = 10
+	for i, row := range recordData {
+		extractZipCode := (row[2])
+		extractZipCode = findAllString(extractZipCode)
+		p := Person{
+			Name:     row[0],
+			City:     "berlin",
+			LastName: row[1],
+			ZipCode:  extractZipCode,
+			Color:    row[3],
+			ID:       i,
+		}
+		*persons = append(*persons, p)
+	}
+
+	// kullanicilar := make([]Kullanici, 5) // 5 adet boş struct oluşturur
+	// kullanicilar[0] = Kullanici{Ad: "Ece", Yas: 33}
+
+}
+
+func findAllString(str string) (string , string) {
+	// Regex Pattern:
+	// -? -> Optional minus sign (for negative numbers)
+	// \d+        -> One or more digits (0-9)
+	// (\.\d+)? -> Optional decimal part (a dot followed by digits)
+	re := regexp.MustCompile(`-?\d+(\.\d+)?`)
+
+	// The FindAllString function finds all matches.
+	// The -1 parameter indicates no limit, meaning it should return all matches.
+	bulunanSayilar := re.FindAllString(str, -1)
+	// result, _ := strconv.ParseInt(bulunanSayilar[0], 6, 12)
+	// fmt.Println("Bulunan Sayılar:", result)
+	return bulunanSayilar[0]
+}
+
+func emptyFilledAndCheck(data string) string {
+	val := emptyCheck(data)
+	if val == false {
+		data = "empty"
+	}
+	return data
+}
+
+// baska bir proje de de kullanilabilir olmasi icin tum islemleri burada yapmadim
+func emptyCheck(str string) bool {
+	isEmpty := true
+	if strings.TrimSpace(str) != "" {
+		isEmpty = false
+	}
+	return isEmpty
+}
+func makeSlice() {
+	// 5 satırdan oluşan bir dış slice oluşturuyoruz
+	rows := 5
+	cols := 5
+	capacity := 20
+
+	// 2 boyutlu slice (slice of slices) tanımı
+	matrix := make([][]int, rows)
+
+	for i := 0; i < rows; i++ {
+		// Her satır için:
+		// Uzunluk (len) = 5 (Görünen sütun sayısı)
+		// Kapasite (cap) = 20 (Bellekte ayrılan sütun yeri)
+		matrix[i] = make([]int, cols, capacity)
+
+		// Örnek veri doldurma (görselleştirme için)
+		for j := 0; j < cols; j++ {
+			matrix[i][j] = (i + 1) * (j + 1)
+		}
+	}
+	fmt.Println(matrix)
+	// Sonuçları yazdırma
+	fmt.Printf("Matris Yapısı: %d satır x %d sütun (Kapasite: %d)\n", len(matrix), len(matrix[0]), cap(matrix[0]))
+	fmt.Println("------------------------------------------------")
+
+	for i, row := range matrix {
+		fmt.Printf("Satır %d: %v | Uzunluk: %d | Kapasite: %d\n", i, row, len(row), cap(row))
+	}
+}
